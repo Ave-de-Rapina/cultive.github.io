@@ -714,70 +714,14 @@
       Cultive Soft 🌱 Microverdes na Vida Real
       <div class="footer-links">
         <a class="footer-link" href="/privacidade.html">Privacidade e cookies</a>
-        <button class="footer-link" type="button" id="manage-cookies">Configurar cookies</button>
       </div>
     </div>
   </footer>
 
-  <section class="cookie-banner" id="cookie-banner" role="dialog" aria-labelledby="cookie-title" aria-describedby="cookie-description" hidden>
-    <h2 id="cookie-title">Sua privacidade importa</h2>
-    <p id="cookie-description">
-      Usamos cookies necessários para lembrar sua escolha. Com sua autorização, usamos o Pixel da Meta para medir visitas e melhorar a divulgação da Cultive Soft. Você pode rejeitar sem perder o acesso ao site.
-      <a class="cookie-privacy-link" href="/privacidade.html">Saiba mais</a>.
-    </p>
-    <div class="cookie-actions">
-      <button class="cookie-action" type="button" id="cookie-reject">Rejeitar opcionais</button>
-      <button class="cookie-action" type="button" id="cookie-settings">Configurar</button>
-      <button class="cookie-action primary" type="button" id="cookie-accept">Aceitar opcionais</button>
-    </div>
-  </section>
-
-  <div class="cookie-modal-backdrop" id="cookie-modal" hidden>
-    <section class="cookie-modal" role="dialog" aria-modal="true" aria-labelledby="cookie-modal-title">
-      <h2 id="cookie-modal-title">Configurações de cookies</h2>
-      <p>Escolha quais tecnologias opcionais podem ser usadas. Você poderá mudar essa preferência a qualquer momento pelo rodapé.</p>
-
-      <div class="cookie-option">
-        <div>
-          <strong>Cookies necessários</strong>
-          <p>Guardam sua preferência de privacidade e são indispensáveis para respeitar sua escolha.</p>
-        </div>
-        <span class="cookie-status">Sempre ativos</span>
-      </div>
-
-      <label class="cookie-option" for="marketing-cookies">
-        <div>
-          <strong>Mensuração e marketing</strong>
-          <p>Autoriza o Pixel da Meta a registrar a visita e cliques nos botões que levam à Hotmart.</p>
-        </div>
-        <input class="cookie-switch" id="marketing-cookies" type="checkbox" />
-      </label>
-
-      <div class="cookie-actions">
-        <button class="cookie-action" type="button" id="cookie-cancel">Cancelar</button>
-        <button class="cookie-action primary" type="button" id="cookie-save">Salvar preferências</button>
-      </div>
-    </section>
-  </div>
-
   <script>
     (() => {
       const PIXEL_ID = '28868319952752371';
-      const CONSENT_KEY = 'cultivesoft_cookie_consent_v1';
-      const CONSENT_VERSION = '2026-07-30';
-      const banner = document.getElementById('cookie-banner');
-      const modal = document.getElementById('cookie-modal');
-      const marketingInput = document.getElementById('marketing-cookies');
       const hotmartLinks = document.querySelectorAll('a[href*="hotmart.com"]');
-
-      function readConsent() {
-        try {
-          const saved = JSON.parse(localStorage.getItem(CONSENT_KEY));
-          return saved && saved.version === CONSENT_VERSION ? saved : null;
-        } catch (_) {
-          return null;
-        }
-      }
 
       function loadMetaPixel() {
         if (window.__cultivePixelLoaded) return;
@@ -809,39 +753,7 @@
         window.fbq('track', 'PageView');
       }
 
-      function saveConsent(marketing) {
-        const pixelWasLoaded = Boolean(window.__cultivePixelLoaded);
-        localStorage.setItem(CONSENT_KEY, JSON.stringify({
-          version: CONSENT_VERSION,
-          marketing,
-          savedAt: new Date().toISOString()
-        }));
-        banner.hidden = true;
-        modal.hidden = true;
-        if (marketing) loadMetaPixel();
-        if (!marketing && pixelWasLoaded) window.location.reload();
-      }
-
-      function openSettings() {
-        const consent = readConsent();
-        marketingInput.checked = Boolean(consent && consent.marketing);
-        modal.hidden = false;
-        marketingInput.focus();
-      }
-
-      const consent = readConsent();
-      if (consent) {
-        if (consent.marketing) loadMetaPixel();
-      } else {
-        banner.hidden = false;
-      }
-
-      document.getElementById('cookie-accept').addEventListener('click', () => saveConsent(true));
-      document.getElementById('cookie-reject').addEventListener('click', () => saveConsent(false));
-      document.getElementById('cookie-settings').addEventListener('click', openSettings);
-      document.getElementById('manage-cookies').addEventListener('click', openSettings);
-      document.getElementById('cookie-cancel').addEventListener('click', () => { modal.hidden = true; });
-      document.getElementById('cookie-save').addEventListener('click', () => saveConsent(marketingInput.checked));
+      loadMetaPixel();
 
       const currentParams = new URLSearchParams(window.location.search);
       const attributionParams = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
