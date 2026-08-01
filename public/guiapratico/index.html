@@ -10,6 +10,38 @@
   <meta property="og:description" content="Guia prático, 12 videoaulas do preparo à colheita e suporte inicial para começar seu cultivo em casa." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://www.cultivesoft.com.br/guiapratico/" />
+  <link rel="preconnect" href="https://connect.facebook.net" crossorigin />
+  <script>
+    (() => {
+      if (window.__cultivePixelLoaded) return;
+      window.__cultivePixelLoaded = true;
+      document.documentElement.dataset.pixelConsent = 'active';
+      const pixelId = '28868319952752371';
+      const isLocalPreview = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+      if (isLocalPreview) {
+        window.__cultivePixelMockEvents = [];
+        window.fbq = (...args) => window.__cultivePixelMockEvents.push(args);
+      } else {
+        window.fbq = window.fbq || function () {
+          window.fbq.callMethod ? window.fbq.callMethod.apply(window.fbq, arguments) : window.fbq.queue.push(arguments);
+        };
+        if (!window._fbq) window._fbq = window.fbq;
+        window.fbq.push = window.fbq;
+        window.fbq.loaded = true;
+        window.fbq.version = '2.0';
+        window.fbq.queue = [];
+
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://connect.facebook.net/pt_BR/fbevents.js';
+        document.head.appendChild(script);
+      }
+
+      window.fbq('init', pixelId);
+      window.fbq('track', 'PageView');
+    })();
+  </script>
   <style>
     :root {
       --dark: #183d2a;
@@ -431,7 +463,7 @@
             <a href="https://pay.hotmart.com/A106618665X" class="btn">Começar agora</a>
           </div>
         </div>
-        <img class="rounded-img" src="assets/microverdes-reais-hero.webp" alt="Microverdes cultivados em bandejas e recipientes simples" />
+        <img class="rounded-img" src="assets/microverdes-reais-hero.webp" alt="Microverdes cultivados em bandejas e recipientes simples" decoding="async" fetchpriority="high" />
       </div>
 
       <div class="container pain-grid">
@@ -501,28 +533,28 @@
         </div>
         <div class="steps">
           <div class="step-card">
-            <img src="assets/passo-1-preparar.webp" alt="Passo a passo para preparar recipiente" />
+            <img src="assets/passo-1-preparar.webp" alt="Passo a passo para preparar recipiente" loading="lazy" decoding="async" />
             <div>
               <h3>Preparar</h3>
               <p>Entenda como organizar o recipiente e evitar acúmulo de água.</p>
             </div>
           </div>
           <div class="step-card">
-            <img src="assets/passos-4-5-semear-regar.webp" alt="Passo a passo de semeadura" />
+            <img src="assets/passos-4-5-semear-regar.webp" alt="Passo a passo de semeadura" loading="lazy" decoding="async" />
             <div>
               <h3>Semear</h3>
               <p>Aprenda a distribuir as sementes de forma mais uniforme.</p>
             </div>
           </div>
           <div class="step-card">
-            <img src="assets/passos-6-7-peso-blackout.webp" alt="Passo a passo de blackout" />
+            <img src="assets/passos-6-7-peso-blackout.webp" alt="Passo a passo de blackout" loading="lazy" decoding="async" />
             <div>
               <h3>Observar</h3>
               <p>Saiba o que acontece no blackout e quando levar para a luz.</p>
             </div>
           </div>
           <div class="step-card">
-            <img src="assets/passos-10-11-colher-armazenar.webp" alt="Passo a passo de colheita e armazenamento" />
+            <img src="assets/passos-10-11-colher-armazenar.webp" alt="Passo a passo de colheita e armazenamento" loading="lazy" decoding="async" />
             <div>
               <h3>Colher</h3>
               <p>Veja como identificar o ponto e armazenar após a colheita.</p>
@@ -565,7 +597,7 @@
             <div>✓ Mais segurança para colher no ponto certo</div>
           </div>
         </div>
-        <img class="rounded-img" src="assets/microverdes-reais-fundo-escuro.webp" alt="Bandeja com microverdes" />
+        <img class="rounded-img" src="assets/microverdes-reais-fundo-escuro.webp" alt="Bandeja com microverdes" loading="lazy" decoding="async" />
       </div>
     </section>
 
@@ -779,39 +811,9 @@
         }
       }
 
-      function loadMetaPixel() {
-        if (window.__cultivePixelLoaded) return;
-        window.__cultivePixelLoaded = true;
-        document.documentElement.dataset.pixelConsent = 'active';
-        const isLocalPreview = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-        if (isLocalPreview) {
-          window.__cultivePixelMockEvents = [];
-          window.fbq = (...args) => window.__cultivePixelMockEvents.push(args);
-          window.fbq('init', PIXEL_ID);
-          window.fbq('track', 'PageView');
-          window.fbq('track', 'ViewContent', eventContext({ content_category: 'pagina_de_vendas' }));
-          return;
-        }
-        window.fbq = window.fbq || function () {
-          window.fbq.callMethod ? window.fbq.callMethod.apply(window.fbq, arguments) : window.fbq.queue.push(arguments);
-        };
-        if (!window._fbq) window._fbq = window.fbq;
-        window.fbq.push = window.fbq;
-        window.fbq.loaded = true;
-        window.fbq.version = '2.0';
-        window.fbq.queue = [];
-
-        const script = document.createElement('script');
-        script.async = true;
-        script.src = 'https://connect.facebook.net/pt_BR/fbevents.js';
-        document.head.appendChild(script);
-
-        window.fbq('init', PIXEL_ID);
-        window.fbq('track', 'PageView');
+      if (window.fbq) {
         window.fbq('track', 'ViewContent', eventContext({ content_category: 'pagina_de_vendas' }));
       }
-
-      loadMetaPixel();
 
       let landingPageViewSent = false;
       function registerLandingPageView() {
