@@ -721,7 +721,63 @@
   <script>
     (() => {
       const PIXEL_ID = '28868319952752371';
+      const PRODUCT = {
+        id: 'A106618665X',
+        name: 'Microverdes na Vida Real',
+        value: 29.90,
+        currency: 'BRL'
+      };
       const hotmartLinks = document.querySelectorAll('a[href*="hotmart.com"]');
+      const attributionKeys = [
+        'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term',
+        'utm_id', 'fbclid', 'src', 'sck'
+      ];
+
+      function getAttribution() {
+        const currentParams = new URLSearchParams(window.location.search);
+        const attribution = {};
+
+        try {
+          const saved = JSON.parse(sessionStorage.getItem('cultive_attribution') || '{}');
+          Object.assign(attribution, saved);
+        } catch (_) {
+          // A mensuracao continua funcionando mesmo se o armazenamento estiver indisponivel.
+        }
+
+        attributionKeys.forEach((key) => {
+          const value = currentParams.get(key);
+          if (value) attribution[key] = value;
+        });
+
+        try {
+          sessionStorage.setItem('cultive_attribution', JSON.stringify(attribution));
+        } catch (_) {
+          // Sem armazenamento, os parametros da URL atual ainda sao encaminhados.
+        }
+
+        return attribution;
+      }
+
+      const attribution = getAttribution();
+
+      function eventContext(extra = {}) {
+        return {
+          content_name: PRODUCT.name,
+          content_ids: [PRODUCT.id],
+          content_type: 'product',
+          value: PRODUCT.value,
+          currency: PRODUCT.currency,
+          page_path: window.location.pathname,
+          ...attribution,
+          ...extra
+        };
+      }
+
+      function trackCustom(name, params = {}) {
+        if (window.__cultivePixelLoaded && window.fbq) {
+          window.fbq('trackCustom', name, eventContext(params));
+        }
+      }
 
       function loadMetaPixel() {
         if (window.__cultivePixelLoaded) return;
@@ -733,6 +789,7 @@
           window.fbq = (...args) => window.__cultivePixelMockEvents.push(args);
           window.fbq('init', PIXEL_ID);
           window.fbq('track', 'PageView');
+          window.fbq('track', 'ViewContent', eventContext({ content_category: 'pagina_de_vendas' }));
           return;
         }
         window.fbq = window.fbq || function () {
@@ -751,25 +808,51 @@
 
         window.fbq('init', PIXEL_ID);
         window.fbq('track', 'PageView');
+        window.fbq('track', 'ViewContent', eventContext({ content_category: 'pagina_de_vendas' }));
       }
 
       loadMetaPixel();
 
-      const currentParams = new URLSearchParams(window.location.search);
-      const attributionParams = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+      let landingPageViewSent = false;
+      function registerLandingPageView() {
+        if (landingPageViewSent || document.visibilityState !== 'visible') return;
+        landingPageViewSent = true;
+        trackCustom('LandingPageView', {
+          visible_seconds: 2,
+          referrer_host: document.referrer ? new URL(document.referrer).hostname : 'direct'
+        });
+      }
+      window.setTimeout(registerLandingPageView, 2000);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') window.setTimeout(registerLandingPageView, 2000);
+      });
+
+      let engagedEventSent = false;
+      function registerEngagement(trigger) {
+        if (engagedEventSent) return;
+        engagedEventSent = true;
+        trackCustom('LandingPageEngaged', { engagement_trigger: trigger });
+      }
+      window.setTimeout(() => registerEngagement('10_seconds'), 10000);
+      window.addEventListener('scroll', () => {
+        const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+        if (scrollable > 0 && window.scrollY / scrollable >= 0.5) registerEngagement('50_percent_scroll');
+      }, { passive: true });
+
       hotmartLinks.forEach((link) => {
         const destination = new URL(link.href);
-        attributionParams.forEach((name) => {
-          if (currentParams.has(name)) destination.searchParams.set(name, currentParams.get(name));
+        Object.entries(attribution).forEach(([name, value]) => {
+          destination.searchParams.set(name, value);
         });
         link.href = destination.toString();
+        const isCheckout = destination.hostname === 'pay.hotmart.com';
+        const ctaIndex = Array.from(hotmartLinks).indexOf(link) + 1;
         link.addEventListener('click', () => {
-          if (window.__cultivePixelLoaded && window.fbq) {
-            window.fbq('trackCustom', 'ClickCheckout', {
-              destination: 'hotmart',
-              content_name: 'Microverdes na Vida Real'
-            });
-          }
+          trackCustom(isCheckout ? 'ClickBuyButton' : 'ViewHotmartDetails', {
+            destination: destination.hostname,
+            cta_index: ctaIndex,
+            cta_text: link.textContent.trim().replace(/\s+/g, ' ').slice(0, 80)
+          });
         });
       });
     })();
